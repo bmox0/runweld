@@ -1,0 +1,56 @@
+{
+  "project": {"name": "runweld", "path": "/projects/runweld"},
+  "tasks": [
+    {
+      "id": "pipeline-panel",
+      "title": "Pipeline panel",
+      "status": "active",
+      "stage": "build",
+      "branch": "runweld/pipeline-panel",
+      "worktree": ".runweld/workflow/trees/pipeline-panel",
+      "stages": [
+        {"id": "grill", "label": "Grill", "status": "skipped", "evidence": []},
+        {"id": "prototype", "label": "Prototype", "status": "done", "evidence": []},
+        {"id": "plan", "label": "Plan", "status": "complete", "evidence": []},
+        {"id": "build", "label": "Build", "status": "current", "evidence": []},
+        {"id": "verify", "label": "Verification", "status": "upcoming", "evidence": []},
+        {"id": "judge", "label": "Judge", "status": "upcoming", "evidence": []},
+        {"id": "human-review", "label": "Human review", "status": "upcoming", "evidence": []},
+        {"id": "finish", "label": "Finish", "status": "upcoming", "evidence": []}
+      ],
+      "phases": [
+        {"id": "1", "title": "Extract pipeline records", "status": "in progress", "prerequisites": [], "assignment": null, "evidence": []},
+        {
+          "id": "2",
+          "title": "Draw the workspace",
+          "status": "in progress",
+          "prerequisites": [],
+          "assignment": {"role": "Implementer", "provider": "GPT", "profile": "secondary", "model": "gpt-6.2-sol", "effort": "high"},
+          "evidence": [
+            {"id": "brief-2", "title": "Implementation brief", "kind": "markdown"},
+            {"id": "report-2", "title": "Phase report", "kind": "markdown"}
+          ]
+        },
+        {"id": "3", "title": "Connect stage records", "status": "waiting", "prerequisites": ["2"], "assignment": null, "evidence": []}
+      ]
+    },
+    {
+      "id": "archive-filters", "title": "Archive filters", "status": "planned", "stage": "plan",
+      "branch": null, "worktree": null, "stages": [{"id": "plan", "label": "Plan", "status": "current", "evidence": []}], "phases": []
+    },
+    {
+      "id": "prototype-review", "title": "Prototype review", "status": "completed", "stage": "prototype",
+      "branch": "runweld/prototype-review", "worktree": null, "phases": [],
+      "stages": [{"id": "prototype", "label": "Prototype", "status": "done", "evidence": [{"id": "preview", "title": "Approved prototype", "kind": "html"}]}]
+    },
+    {
+      "id": "audit-trail", "title": "Audit trail", "status": "cancelled", "stage": "grill",
+      "branch": null, "worktree": null, "stages": [{"id": "grill", "label": "Grill", "status": "done", "evidence": []}], "phases": []
+    },
+    {
+      "id": "workflow-progress", "title": "Workflow progress", "status": "merged", "stage": "finish",
+      "branch": "runweld/workflow-progress", "worktree": null, "phases": [],
+      "stages": [{"id": "finish", "label": "Finish", "status": "done", "evidence": [{"id": "handoff", "title": "Retained finish record", "kind": "markdown"}]}]
+    }
+  ]
+}

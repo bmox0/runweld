@@ -142,7 +142,7 @@ none
     prior_lock_contents = prior_lock.read_bytes()
     candidate = root / "candidate"
     candidate.mkdir()
-    for name in ("workflow", "agents", "references", "adapters", "scripts", "docs", "bin"):
+    for name in ("workflow", "ui", "agents", "references", "adapters", "scripts", "docs", "bin"):
         shutil.copytree(source / name, candidate / name)
     for name in ("README.md", "LICENSE", "install.sh", "VERSION"):
         shutil.copy2(source / name, candidate / name)

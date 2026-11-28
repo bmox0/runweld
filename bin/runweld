@@ -53,6 +53,10 @@ def main(locks):
         release = None
         if len(argv) >= 2 and argv[0] == "--release":
             release, argv = argv[1], argv[2:]
+        if argv[:1] == ["ui"] or argv[:2] == ["help", "ui"]:
+            # The viewer spans tasks on different pinned releases.
+            engine = verify_release(store, release if release is not None else installed_default(store)) / PROGRAM
+            os.execv(sys.executable, [sys.executable, str(engine), *argv])
         try:
             _, args = parse_cli(argv, standalone=True, routing=True)
         except ParseExit:

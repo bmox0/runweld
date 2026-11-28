@@ -1,0 +1,92 @@
+Dashboard view
+
+The static entry point is index.html. The workspace renderer and interaction
+controller are in dashboard.mjs, with no build or third-party runtime.
+
+Project snapshot
+
+GET /api/project returns JSON of this shape. An empty project returns an empty
+tasks array.
+
+{
+  "project": {"name": "runweld", "path": "/projects/runweld"},
+  "tasks": [{
+    "id": "pipeline-panel",
+    "title": "Pipeline panel",
+    "status": "active",
+    "stage": "build",
+    "branch": "runweld/pipeline-panel",
+    "worktree": "/projects/runweld/.runweld/workflow/trees/pipeline-panel",
+    "executors": {"secondary": {"provider": "GPT", "model": "gpt-6.2-sol", "effort": "high"}},
+    "stages": [{"id": "build", "label": "Build", "status": "current", "evidence": []}],
+    "phases": [{
+      "id": "2",
+      "title": "Draw the workspace",
+      "status": "in progress",
+      "prerequisites": [],
+      "assignment": {
+        "role": "Implementer",
+        "provider": "GPT",
+        "model": "gpt-6.2-sol",
+        "effort": "high",
+        "profile": "secondary"
+      },
+      "evidence": [{"id": "brief-2", "title": "Implementation brief", "kind": "markdown", "revision": "e31a9f7"}]
+    }]
+  }]
+}
+
+- Task IDs are stable and unique within the project. Task status is one of
+  planned, active, completed, cancelled or merged. Explicit closure is
+  distinct from integration. stage is the actual current or closing stage
+  ID, or null if unrecorded. Use null for an unavailable branch or worktree.
+  The optional executors object reports saved task profiles by primary or
+  secondary, with null for an unavailable provider, model or effort.
+- Stages are in the task's recorded route order. IDs and labels come from its
+  stage definitions. Report the recorded stage state as status (for example,
+  current, complete, upcoming, active, done, skipped or unknown).
+  Do not make a closed task appear to be executing.
+- Phase IDs and prerequisite IDs are strings. A prerequisite is an edge from
+  that ID to the current phase. Preserve the recorded phase status (for
+  example, waiting, in progress, or done). Assignment is null when not
+  recorded. Within a recorded assignment, unavailable fields are null.
+- List fields are always arrays. Task and stage objects may include a plain
+  text summary with recorded facts or an explanation of unavailable data.
+  A stage may also supply overview: {heading, summary, facts, groups, next}.
+  Each fact is {label, value}. Each group is {title, rows}. Each row has a
+  title and may have a status badge, detail, phaseId or task-local evidenceId.
+  A next action is {owner, text} and never runs a command from the browser.
+  Stages can supply statusLabel, statusTone, displayStatus and contextLabel.
+  A badge is {text, tone}. Tasks can supply displayStatus, sidebar
+  {detail, tone}, inventory {group, subtitle, status, detail, execution},
+  workspaceTitle and execution {label, value, detail}. These are optional
+  public display fields, not new persisted outcomes or stage states.
+- Evidence references have stable IDs unique within a task and an opaque
+  revision that changes when the reader should reload their content. Their kind is
+  markdown, image, html, diff or text. Optional
+  role: "reference" identifies guides. Omit it for stage results. The
+  optional label, badge, icon, sourceName and caption describe the evidence, and a
+  browserAddress is inert text, not a location to load. Use
+  GET /api/evidence?task=…&id=… with the two opaque IDs, never a file path.
+  The response is the selected evidence's bytes.
+
+mountDashboard(root, snapshot) attaches the view. Its update(snapshot)
+method applies another projection without resetting task, stage, phase, tab
+or the open reader's position. A selected file button also closes its
+reader. Build starts with the compact phase list. Its stage title toggles
+the dependency graph, phase selection reveals the assignment, and the task
+badge toggles saved executor profiles when available.
+live.mjs shows loading and retry states before the first successful snapshot,
+then polls the project endpoint and retains the last good view if it cannot
+refresh. The fixture preview at
+test/ui/frontend/preview.html exercises the workspace without the live API.
+The typed evidence reader fetches only the selected task-local evidence URL.
+Markdown and diff markup escape source text. HTML runs in a script-disabled
+artifact sandbox with no external resources. Its isolated wrapper manages
+height and reading position. A verified single-image HTML artifact can display
+its passive image directly in the figure. Its browser bar opens the same
+script-disabled original. Images use the verified passive types.
+
+Open compiled runs use the verified pinned CLI's read-only workflow resolver.
+If it cannot observe the stage, do not guess it or hide safe historical
+evidence.

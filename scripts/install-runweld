@@ -24,7 +24,7 @@ def main():
     store = prefix / "lib" / "runweld"
     releases = store / "releases"
     launcher = prefix / "bin" / "runweld"
-    resources = ("workflow", "agents", "references", "adapters", "scripts", "docs",
+    resources = ("workflow", "ui", "agents", "references", "adapters", "scripts", "docs",
                  "bin")
     if any(prefix.is_relative_to(source / name) for name in resources):
         raise ReleaseError("choose an installation prefix outside the release resource directories")

@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Runweld · Dashboard fixture</title>
+  <link rel="stylesheet" href="../../../ui/frontend/styles.css">
+</head>
+<body>
+  <div id="dashboard" class="dashboard"></div>
+  <script type="module">
+    import { mountDashboard } from "../../../ui/frontend/dashboard.mjs";
+    const fixture = await fetch("./project.json").then((response) => response.json());
+    mountDashboard(document.querySelector("#dashboard"), fixture);
+  </script>
+</body>
+</html>

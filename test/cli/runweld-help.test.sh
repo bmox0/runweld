@@ -52,13 +52,14 @@ with tempfile.TemporaryDirectory() as tmp:
 
     # distribution#command-help: every shipped group, nested action and guide uses the same entry points.
     commands = """
-        help reference handoff next onboard update path task spec approve status workflow plan build
+        help reference handoff next onboard update ui path task spec approve status workflow plan build
         phase owner grant decision brief gate finding review result fix verdict land page accept
         note round finish run executor writing-guides grill prototype run-file verify bug epic retro
         domain-modeling tdd browser-test commit-work implementer reviewer judge build-verification human-review
     """.split()
     nested = {
         "handoff": "herdr",
+        "ui": "up list down",
         "task": "start resume path setup stage complete cancel",
         "spec": "check write list show",
         "plan": "review approve status base",
