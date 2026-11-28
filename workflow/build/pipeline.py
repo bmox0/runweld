@@ -3069,8 +3069,21 @@ def judge_evidence(st):
     return digest({k: st.get(k, []) for k in ("cycles", "rounds", "notes", "phases")})
 
 
+def judge_contract(st, planning):
+    return digest([planning, st.get("run"), st["base"], st["branch"]])
+
+
 def contract_digest(plan, st):
-    return digest([planning_digest(plan), st.get("run"), st["base"], st["branch"]])
+    return judge_contract(st, planning_digest(plan))
+
+
+def judge_binding_current(st, v, tree, contract):
+    current = head_sha(None, tree)
+    last = (st.get("lands") or [None])[-1]
+    landed = (last and last.get("judge") == v["n"] and current == last["tip"]
+              and (last["accepted"] or (not last["difference"] and tree_id(tree, current) == tree_id(tree, v["head"]))))
+    return (v.get("evidence") == judge_evidence(st) and v.get("contract") == contract
+            and bool(current and (current == v["head"] or landed)))
 
 
 def require_judge(plan, st):
@@ -3080,12 +3093,7 @@ def require_judge(plan, st):
     v = (st.get("verdicts") or [None])[-1]
     if not v or not (v["kind"] == "pass" or v.get("stop")):
         raise Refuse("no-pass", "the judge's last verdict is not a pass or stopped round", "run the judge on the current evidence")
-    tree = tree_of(plan, st)
-    current = head_sha(None, tree)
-    last = (st.get("lands") or [None])[-1]
-    landed = (last and last.get("judge") == v["n"] and current == last["tip"]
-              and (last["accepted"] or (not last["difference"] and tree_id(tree, current) == tree_id(tree, v["head"]))))
-    if v.get("evidence") != judge_evidence(st) or v.get("contract") != contract_digest(plan, st) or not (current and (current == v["head"] or landed)):
+    if not judge_binding_current(st, v, tree_of(plan, st), contract_digest(plan, st)):
         raise Refuse("judge-stale", "the judge does not cover the current commit, planning content or evidence", "run current checks and the judge, then land and page again")
     if st.get("rounds") and not st["rounds"][-1]["done"]:
         raise Refuse("round-open", "a round is still running", "finish the round and run the judge")
@@ -7054,6 +7062,12 @@ def parse_cli(argv, *, standalone=False, routing=False, version=None):
         scopes.add_argument("--project", dest="scope", action="store_const", const="project",
                             help="select an installed build for new tasks in this project")
         update_parser.add_argument("version", nargs="?", metavar="RELEASE", help="exact release ID (default: most recently installed)")
+        ui = top.add_parser("ui", help="launch, list or stop local project dashboards")
+        ui_actions = ui.add_subparsers(dest="command", required=True)
+        ui_actions.add_parser("up", help="open this project's dashboard")
+        ui_actions.add_parser("list", help="list this user's running dashboards")
+        down = ui_actions.add_parser("down", help="stop a dashboard by PID")
+        down.add_argument("pid", type=int, metavar="PID", help="server PID printed by up or list")
         paths = top.add_parser("path", help="print the shared local workflow path without creating it")
         paths.add_argument("area", nargs="?", help="optional category under the project workflow")
         task_commands = top.add_parser("task", help="start, inspect or close a task in its own worktree").add_subparsers(dest="command", required=True)
@@ -7475,6 +7489,10 @@ def main(*, current_task=None, lifecycle=False):
         plan_arg = getattr(a, "plan", None)
         if bundle is not None:
             from runweld_release import command_plan, run_pin, update_installation
+            if a.group == "ui":
+                sys.path.insert(0, str(bundle))
+                from ui.server import command
+                return command(a)
             selected_plan = command_plan(a, Path.cwd())
             required = run_pin(selected_plan) if selected_plan and not lifecycle else None
             if required is not None and required != bundle.name:

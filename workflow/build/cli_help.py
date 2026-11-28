@@ -40,6 +40,7 @@ Project and tasks
   task complete        Close a task when the owner says its goal has been reached.
   task cancel          Close a task when the owner decides to stop the work.
   status               Inspect a plan or list current work.
+  ui                   Launch, list or stop local project dashboards.
   workflow             Show the stages, roles, and requirements.
 
   Completing or cancelling a task records the stage where it closed and
@@ -294,6 +295,16 @@ DETAILS = {
     "browser-test": ("Run bare for the browser test guide. Use runweld browser-test help for the helper’s actions "
                      "and options without opening a browser.",
                      "browser-test", "browser-test help"),
+    "ui": ("Inspect the project's Runweld tasks and evidence in a local, read-only dashboard. "
+           "Launch in a checkout or its task worktree, then list or stop panels from any directory.",
+           "ui up", "ui list", "help ui down"),
+    "ui up": ("Serve the Git project's dashboard on loopback and open it in your default browser. "
+              "Once ready, prints URL: and PID: on separate lines. Use the printed URL if the browser does not open. "
+              "Stays in the foreground until Ctrl+C or runweld ui down PID.", "ui up"),
+    "ui list": ("From any directory, list this user's running panels with PID, URL and project path. "
+                "Stale instances are excluded.", "ui list"),
+    "ui down": ("From any directory, stop only the running dashboard identified by PID from up or list. "
+                "Run ui list to verify it is gone.", "ui down 12345"),
 }
 
 

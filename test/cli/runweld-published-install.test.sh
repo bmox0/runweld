@@ -98,7 +98,7 @@ exec "$FIXTURE_GIT" "$@"
         assert run(prefix / "bin/runweld", "--version", "--verbose").splitlines()[-1] == f"Build ID: {release}"
         return release
 
-    for name in ("workflow", "agents", "references", "adapters", "scripts", "docs", "bin"):
+    for name in ("workflow", "ui", "agents", "references", "adapters", "scripts", "docs", "bin"):
         shutil.copytree(source / name, upstream / name, ignore=shutil.ignore_patterns("__pycache__", ".DS_Store"))
     for name in ("install.sh", "LICENSE"):
         shutil.copy2(source / name, upstream / name)

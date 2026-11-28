@@ -134,6 +134,25 @@ project checkout. If it reports an unknown local file, move it somewhere safe
 or resolve it, then follow the cleanup retry. Runweld keeps the dated task
 directory, including the accepted result and evidence.
 
+## Open the project dashboard
+
+Run `runweld ui up` from a Git checkout or one of its Runweld task
+worktrees. The dashboard runs in the foreground and opens in your default
+browser. If it doesn't open automatically, use the printed loopback URL.
+The panel is read-only and refreshes as Runweld records change. Select a
+task, stage or build phase to read its saved evidence. Select the Build stage
+heading to open the dependency graph. Select the badge beside the task ID to
+read its saved executor profiles, when available.
+
+From any directory, `runweld ui list` shows your running dashboards with
+their PIDs, URLs and project paths. Press Ctrl+C in the launch terminal or
+run `runweld ui down PID` with the printed PID to stop that panel. Run
+`runweld ui list` again to confirm it is gone.
+
+Use `runweld help ui` or `runweld ui --help` to find the commands. For any
+subcommand, use either spelling, for example `runweld help ui down` or
+`runweld ui down --help`.
+
 ## Complete or cancel a task
 
 Run these only on the task owner's explicit decision. Use `complete` when the

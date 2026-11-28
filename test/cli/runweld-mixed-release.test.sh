@@ -21,6 +21,17 @@ else
   cp -R "$repo_root/." "$preceding/"
   sed -e '/^project_lock_/d' -e '/^\[route\]$/,/^$/d' "$repo_root/references/workflow.toml" > "$preceding/references/workflow.toml"
   sed 's/Close a task whose/Previous help for a task whose/g' "$repo_root/workflow/build/cli_help.py" > "$preceding/workflow/build/cli_help.py"
+  sed 's/, "ui"//' "$repo_root/scripts/install-runweld" > "$preceding/scripts/install-runweld"
+  cat >> "$preceding/workflow/build/runweld_release.py" <<'PY'
+
+# The preceding launcher treats top-level UI files as ordinary release resources.
+current_component_key = component_key
+
+def component_key(path):
+    if path.startswith("ui/"):
+        return "resources", "ui"
+    return current_component_key(path)
+PY
 fi
 launcher="$sandbox/bin/runweld"
 "$preceding/scripts/install-runweld" --prefix "$sandbox" >/dev/null
@@ -403,6 +414,14 @@ fi
 cmp runweld.lock "$sandbox/lock"
 cmp "$preceding/bin/runweld" "$sandbox/bin/runweld"
 assert_eq "$a" "$(cat "$sandbox/lib/runweld/default")"
+if [[ -z "${RUNWELD_TEST_LEGACY_BUNDLE:-}" ]]; then
+  version=$(cli --version --verbose)
+  assert_contains "$version" "CLI build ID: $a" 'distribution#project-lock: the preceding launcher is active'
+  assert_contains "$version" "Project build ID: $b" 'distribution#project-lock: the preceding launcher reads the unchanged current pin'
+  inventory=$(cli status --json)
+  assert_contains "$inventory" "$b" 'distribution#project-lock: the preceding launcher reads status with the current pin'
+  cmp runweld.lock "$sandbox/lock"
+fi
 "$repo_root/scripts/install-runweld" --prefix "$sandbox" >/dev/null
 cmp runweld.lock "$sandbox/lock"
 cmp "$repo_root/bin/runweld" "$sandbox/bin/runweld"
